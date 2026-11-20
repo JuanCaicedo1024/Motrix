@@ -17,7 +17,6 @@ export default function Footer({ homepage = true }: { homepage?: boolean }) {
       <div className="footer-links">
         <p className="footer-title">Hablemos</p>
         <a href={`${home}#contacto`}>Contacto comercial</a>
-        <a href={`${home}#catalogo`}>Catálogo</a>
       </div>
     </div>
     <div className="wrap footer-bottom">

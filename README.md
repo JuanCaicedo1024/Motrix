@@ -20,7 +20,7 @@ Vite genera el sitio estático en `dist/`. Usa un servidor HTTP para servirlo.
 | Activo | Dónde editar |
 | --- | --- |
 | Logo oficial | `public/brand/motrix.png` contiene el PNG original. Configura la ruta en `src/data/site.ts`. Si la nueva imagen tiene márgenes distintos, ajusta el encuadre en `globals.css` y el recorte sin deformación en `ProductModel.tsx`. |
-| Catálogo PDF | Guarda el archivo en `public/catalog/` y escribe su ruta relativa, por ejemplo `catalog/motrix.pdf`, en `site.catalog`. El servidor debe entregar el tipo `application/pdf` en la respuesta HEAD. |
+| Catálogo PDF | El archivo se conserva en `public/catalog/`, pero actualmente no se muestra en el sitio. |
 | Modelo 3D | Guarda el GLB en `public/models/` y configura `site.model` con una ruta como `models/motrix.glb`. Usa Y hacia arriba, cara frontal hacia +Z, origen centrado y una altura cercana a 2,8 unidades. El GLB reemplaza el envase de la escena. El deportivo se construye con geometría procedural en SportsCar.tsx del mismo directorio three. |
 | Respaldo del hero | Reemplaza `public/images/envase-motrix.webp` cuando cambies de modelo. Usa una imagen con fondo transparente y encuadre equivalente. La imagen se muestra durante la carga, si WebGL falla y con movimiento reducido. |
 | Fotografías y fichas | Guarda las fotos en `public/products/` y completa `photo`, `description`, `presentation` o `price` en `src/data/products.ts`. Cada ficha requiere un `id` único. |

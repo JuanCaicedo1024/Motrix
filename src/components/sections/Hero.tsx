@@ -11,7 +11,7 @@ class SceneBoundary extends Component<{ children: ReactNode; onFailure: () => vo
   render() { return this.state.failed ? null : this.props.children }
 }
 
-export default function Hero({ catalog }: { catalog: string }) {
+export default function Hero() {
   const stage = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [reduced, setReduced] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -45,8 +45,7 @@ export default function Hero({ catalog }: { catalog: string }) {
         <h1 id="hero-title">Cuidado que <strong>Perdura<span aria-hidden="true">.</span></strong></h1>
         <p className="hero-description">Productos para la limpieza, el cuidado y el mantenimiento de tu vehículo.</p>
         <div className="actions flex flex-wrap">
-          
-          <Button href="#productos" secondary={Boolean(catalog)}>Explorar productos</Button>
+          <Button href="#productos">Explorar productos</Button>
         </div>
       </div>
       <figure className="hero-figure">

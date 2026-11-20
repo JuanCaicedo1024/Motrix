@@ -5,14 +5,11 @@ import Hero from './components/sections/Hero'
 import Company from './components/sections/Company'
 import Team from './components/sections/Team'
 import Products from './components/sections/Products'
-import Catalog from './components/sections/Catalog'
 import Contact from './components/sections/Contact'
 import ProductDetail from './components/sections/ProductDetail'
 import { products } from './data/products'
-import { useCatalog } from './hooks/useCatalog'
 
 export default function App() {
-  const catalog = useCatalog()
   const productId = window.location.pathname.match(/^\/productos\/([^/]+)\/?$/)?.[1]
   const selectedProduct = products.find(product => product.id === productId)
 
@@ -44,10 +41,9 @@ export default function App() {
     {selectedProduct
       ? <ProductDetail product={selectedProduct} />
       : <main>
-        <Hero catalog={catalog} />
+        <Hero />
         <Company />
         <Products />
-        <Catalog catalog={catalog} />
         <Team />
         <Contact />
       </main>}

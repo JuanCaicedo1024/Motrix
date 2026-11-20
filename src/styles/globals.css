@@ -81,12 +81,8 @@ h2 { font-weight: 800; font-size: clamp(3.05rem, 5.7vw, 5.3rem); line-height: .9
 h3 { font-size: clamp(1.35rem, 2vw, 1.88rem); line-height: 1; margin-top: 7px; }
 .product-copy p:not(.category) { margin-top: 8px; }
 .product-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 13px; color: #ff7287; font-family: var(--font-display); font-size: .77rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
-.catalog { border-bottom: 1px solid #422331; background: linear-gradient(132deg, #35121c 55%, #481222 55.1%, #1a0e16 80%); }
-.catalog-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding-block: 61px; gap: 20px; }
-.catalog-document { padding-bottom: 58px; }
-.catalog-frame { display: block; width: 100%; height: min(78vh, 900px); min-height: 600px; border: 1px solid #5b323d; background: #f6f3ed; }
-.catalog h2, .contact h2 { margin-bottom: 14px; }
-.catalog p:not(.eyebrow), .contact p { color: #d8cdd2; }
+.contact h2 { margin-bottom: 14px; }
+.contact p { color: #d8cdd2; }
 .contact { padding-block: 63px 69px; }
 footer { border-top: 1px solid #26242a; background: #08080a; }
 .company { padding-block: 82px 76px; background: #0c0b0f; border-bottom: 1px solid #28262c; }
@@ -213,8 +209,6 @@ footer { border-top: 1px solid #26242a; background: #08080a; }
   .team-grid { margin-top: 25px; }
   .team-card { min-height: 0; padding: 20px; }
   .team-card-rule { margin-top: 18px; }
-  .catalog-document { padding-bottom: 35px; }
-  .catalog-frame { height: 72vh; min-height: 480px; }
   .product-detail-page { padding-bottom: 48px; }
   .product-breadcrumbs { flex-wrap: wrap; padding-top: 9px; }
   .product-detail-grid { grid-template-columns: 1fr; gap: 28px; }
