@@ -45,7 +45,7 @@ export default function Hero({ catalog }: { catalog: string }) {
         <h1 id="hero-title">Cuidado que <strong>Perdura<span aria-hidden="true">.</span></strong></h1>
         <p className="hero-description">Productos para la limpieza, el cuidado y el mantenimiento de tu vehículo.</p>
         <div className="actions flex flex-wrap">
-          {catalog && <Button href={catalog} target="_blank" rel="noopener">Ver catálogo PDF</Button>}
+          
           <Button href="#productos" secondary={Boolean(catalog)}>Explorar productos</Button>
         </div>
       </div>
@@ -60,10 +60,11 @@ export default function Hero({ catalog }: { catalog: string }) {
             </SceneBoundary>
           </div>}
         </div>
-        <figcaption>Representación 3D de marca</figcaption>
+        <figcaption>Deportivo y envase · Escena 3D conceptual</figcaption>
       </figure>
     </div>
     <div className="hero-edge" aria-hidden="true" />
   </section>
 }
+
 

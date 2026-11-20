@@ -1,23 +1,24 @@
 import { Canvas, useThree } from '@react-three/fiber'
+import { Environment, Lightformer } from '@react-three/drei'
 import { useEffect, useMemo, useRef } from 'react'
-import { CatmullRomCurve3, Group, Mesh, PointLight, TubeGeometry, Vector3 } from 'three'
+import { CanvasTexture, Group, SpotLight } from 'three'
 import gsap from 'gsap'
 import { asset, site } from '../../data/site'
 import ProductModel, { RealProduct } from './ProductModel'
+import SportsCar from './SportsCar'
 
-const neutral = { x: .01, y: -.29, z: -.12 }
-const sessionKey = 'motrix-intro-v1'
+const neutral = -.32
+let played = false
 
-function markIntro() {
+function claimIntro() {
+  if (played) return false
+  played = true
   try {
-    if (sessionStorage.getItem(sessionKey)) return false
-    sessionStorage.setItem(sessionKey, 'seen')
-  } catch {
-    return !played
-  }
+    if (sessionStorage.getItem('motrix-intro-v2')) return false
+    sessionStorage.setItem('motrix-intro-v2', 'seen')
+  } catch { /* Keep the in-memory session flag. */ }
   return true
 }
-let played = false
 
 type Props = {
   fine: boolean
@@ -25,57 +26,61 @@ type Props = {
   onFailure: (failure: boolean) => void
 }
 
-function Studio({ fine, onReady, onFailure }: Props) {
-  const product = useRef<Group>(null!)
-  const contour = useRef<Mesh>(null!)
-  const glint = useRef<PointLight>(null!)
-  const { invalidate, gl } = useThree()
-  const introActive = useRef(false)
-  const geometry = useMemo(() => {
-    const coordinates = [
-      [-.02, -1.24], [.49, -1.24], [.62, -1.2], [.67, -1.09],
-      [.67, .65], [.64, .82], [.53, .95], [.32, 1.11],
-      [.33, 1.53], [.25, 1.56], [0, 1.56],
-    ]
-    const path = new CatmullRomCurve3(coordinates.map(([x, y]) => new Vector3(x, y, .018)))
-    return new TubeGeometry(path, 100, .012, 5)
+function FloorShadows() {
+  const shadow = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 128
+    const context = canvas.getContext('2d')!
+    const fade = context.createRadialGradient(64, 64, 10, 64, 64, 64)
+    fade.addColorStop(0, 'rgba(0,0,0,.95)')
+    fade.addColorStop(.52, 'rgba(0,0,0,.68)')
+    fade.addColorStop(1, 'rgba(0,0,0,0)')
+    context.fillStyle = fade
+    context.fillRect(0, 0, 128, 128)
+    return new CanvasTexture(canvas)
   }, [])
-  useEffect(() => () => geometry.dispose(), [geometry])
+  useEffect(() => () => shadow.dispose(), [shadow])
+  return <>
+    <mesh position-y={-.025} rotation={[-Math.PI / 2, 0, -.32]}>
+      <planeGeometry args={[3.7, 6.7]} />
+      <meshBasicMaterial map={shadow} transparent depthWrite={false} />
+    </mesh>
+    <mesh position={[2.42, -.029, .05]} rotation-x={-Math.PI / 2}>
+      <planeGeometry args={[1.8, 1.6]} />
+      <meshBasicMaterial map={shadow} transparent depthWrite={false} />
+    </mesh>
+  </>
+}
+
+function Studio({ fine, onReady, onFailure }: Props) {
+  const car = useRef<Group>(null!)
+  const rim = useRef<SpotLight>(null!)
+  const moving = useRef(false)
+  const { invalidate, gl } = useThree()
 
   useEffect(() => {
-    const target = product.current
-    const light = glint.current
-    const trace = contour.current
+    const target = car.current
+    const light = rim.current
     const frame = requestAnimationFrame(() => onReady(true))
     const lost = (event: Event) => { event.preventDefault(); onFailure(true) }
     gl.domElement.addEventListener('webglcontextlost', lost)
-    const shouldPlay = markIntro()
-    played = true
     let sequence: gsap.core.Timeline | undefined
-    if (shouldPlay) {
-      introActive.current = true
-      const progress = { value: 0 }
-      const indexCount = geometry.index!.count
-      trace.visible = !site.model
-      geometry.setDrawRange(0, 0)
-      gsap.set(target.rotation, { x: -.07, y: .74, z: -.19 })
-      gsap.set(target.position, { y: -.45, z: -.7 })
-      gsap.set(target.scale, { x: .79, y: .79, z: .79 })
-      sequence = gsap.timeline({ onUpdate: () => invalidate(), onComplete: () => {
-        introActive.current = false
-        invalidate()
-      } })
+    if (claimIntro()) {
+      moving.current = true
+      gsap.set(target.rotation, { y: -1.02 })
+      gsap.set(target.position, { x: .48, z: -.75 })
+      gsap.set(light, { intensity: 0 })
+      sequence = gsap.timeline({
+        onUpdate: () => invalidate(),
+        onComplete: () => { moving.current = false; invalidate() },
+      })
       sequence
-        .to(progress, { value: 1, duration: .7, ease: 'power2.inOut', onUpdate: () => {
-          geometry.setDrawRange(0, Math.floor(indexCount * progress.value / 30) * 30)
-        } }, 0)
-        .to(target.position, { y: 0, z: 0, duration: 1.48, ease: 'power3.out' }, .28)
-        .to(target.scale, { x: 1, y: 1, z: 1, duration: 1.48, ease: 'power3.out' }, .28)
-        .to(target.rotation, { ...neutral, duration: 1.67, ease: 'power3.out' }, .32)
-        .set(trace, { visible: false }, 1.19)
-        .to(light, { intensity: 8, duration: .22 }, 1.48)
-        .to(light.position, { x: 1.75, duration: .82, ease: 'sine.inOut' }, 1.48)
-        .to(light, { intensity: 0, duration: .48 }, 1.82)
+        .to(light, { intensity: 175, duration: .35 }, 0)
+        .to(light.position, { x: 4, duration: 1.05, ease: 'sine.inOut' }, .08)
+        .to(target.position, { x: 0, z: 0, duration: 1.82, ease: 'power3.out' }, .18)
+        .to(target.rotation, { y: neutral, duration: 2.1, ease: 'expo.out' }, .26)
+        .to(light, { intensity: 28, duration: .52 }, 1.45)
+        .to(light.position, { x: -1.8, duration: .48 }, 1.92)
     }
     invalidate()
     return () => {
@@ -84,57 +89,60 @@ function Studio({ fine, onReady, onFailure }: Props) {
       sequence?.kill()
       gl.domElement.removeEventListener('webglcontextlost', lost)
     }
-  }, [geometry, gl, invalidate, onFailure, onReady])
+  }, [gl, invalidate, onFailure, onReady])
 
   useEffect(() => {
     if (!fine) return
     const stage = gl.domElement.closest('.stage')
     if (!stage) return
-    const rotation = product.current.rotation
+    const rotation = car.current.rotation
     const move = (event: Event) => {
-      if (introActive.current) return
+      if (moving.current) return
       const pointer = event as PointerEvent
       const rect = stage.getBoundingClientRect()
       gsap.to(rotation, {
-        y: neutral.y + ((pointer.clientX - rect.left) / rect.width - .5) * .25,
-        x: neutral.x + ((pointer.clientY - rect.top) / rect.height - .5) * .14,
-        duration: .46, overwrite: 'auto', onUpdate: () => invalidate(),
+        y: neutral + ((pointer.clientX - rect.left) / rect.width - .5) * .15,
+        duration: .55, overwrite: 'auto', onUpdate: () => invalidate(),
       })
     }
     const reset = () => {
-      if (!introActive.current) gsap.to(rotation, { ...neutral, duration: .6, overwrite: 'auto', onUpdate: () => invalidate() })
+      if (!moving.current) gsap.to(rotation, { y: neutral, duration: .65, overwrite: 'auto', onUpdate: () => invalidate() })
     }
     stage.addEventListener('pointermove', move)
     stage.addEventListener('pointerleave', reset)
     return () => {
       stage.removeEventListener('pointermove', move)
       stage.removeEventListener('pointerleave', reset)
-      if (!introActive.current) {
-        gsap.killTweensOf(rotation)
-        rotation.set(neutral.x, neutral.y, neutral.z)
-        invalidate()
-      }
+      if (!moving.current) gsap.killTweensOf(rotation)
     }
   }, [fine, gl, invalidate])
 
   return <>
-    <ambientLight intensity={.53} />
-    <directionalLight color="#fff1eb" position={[-3, 5, 4]} intensity={3.1} />
-    <directionalLight color="#ff0529" position={[2, 2, -1.6]} intensity={5.5} />
-    <directionalLight color="#d3dafa" position={[4, .4, 2]} intensity={.8} />
-    <pointLight ref={glint} position={[-1.7, -.1, 2]} intensity={0} decay={2} />
-    <group ref={product} rotation={[neutral.x, neutral.y, neutral.z]}>
-      {site.model ? <RealProduct path={asset(site.model)} /> : <ProductModel />}
-      <mesh ref={contour} geometry={geometry} visible={false}>
-        <meshBasicMaterial color="#ff1838" toneMapped={false} />
-      </mesh>
+    <ambientLight intensity={.55} />
+    <directionalLight color="#ffefe7" position={[-3, 5, 4]} intensity={2.2} />
+    <directionalLight color="#ff193b" position={[3, 2, -4]} intensity={3.2} />
+    <spotLight ref={rim} position={[-1.8, 3, 4]} intensity={28} color="#ffe5db" angle={.5} penumbra={.85} />
+    <Environment resolution={128}>
+      <Lightformer intensity={3} position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[8, 2, 1]} />
+      <Lightformer intensity={2} position={[3.5, 2, 1]} rotation-y={Math.PI / 2} scale={[6, 1.1, 1]} />
+      <Lightformer intensity={3} color="#ff123b" position={[-4, 1, -2]} rotation-y={-Math.PI / 2} scale={[5, 2, 1]} />
+    </Environment>
+    <group position-y={-.48}>
+      <FloorShadows />
+      <group ref={car} rotation-y={neutral}><SportsCar /></group>
+      <group position={[2.42, .45, .05]} rotation={[.02, -.16, -.09]} scale={.41}>
+        {site.model ? <RealProduct path={asset(site.model)} /> : <ProductModel />}
+      </group>
     </group>
   </>
 }
 
 export default function HeroScene(props: Props) {
-  return <Canvas frameloop="demand" dpr={[1, 1.75]} camera={{ position: [0, .26, 5.55], fov: 36 }}
+  return <Canvas frameloop="demand" dpr={[1, 1.65]} camera={{ position: [4.7, 2.28, 6.7], fov: 33 }}
     gl={{ alpha: true, antialias: true }} fallback={null}>
     <Studio {...props} />
   </Canvas>
 }
+
+
+
