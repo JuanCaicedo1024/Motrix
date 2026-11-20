@@ -1,6 +1,7 @@
 import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import SceneFallback from '../three/SceneFallback'
 import Button from '../ui/Button'
+import { asset, site } from '../../data/site'
 
 const HeroScene = lazy(() => import('../three/HeroScene'))
 
@@ -45,6 +46,7 @@ export default function Hero() {
         <h1 id="hero-title">Cuidado que <strong>Perdura<span aria-hidden="true">.</span></strong></h1>
         <p className="hero-description">Productos para la limpieza, el cuidado y el mantenimiento de tu vehículo.</p>
         <div className="actions flex flex-wrap">
+          <Button href={asset(site.catalog)} target="_blank" rel="noopener" secondary>Ver catálogo PDF</Button>
           <Button href="#productos">Explorar productos</Button>
         </div>
       </div>
